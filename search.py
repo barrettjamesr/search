@@ -72,19 +72,90 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
+    """
+    From lecture notes:
+    initialize frontier using initial state of problem
+    initialize explored set to be empty
+    while frontier is not empty
+    choose a leaf node and remove it from frontier
+    if node contains a goal state then return corresponding solution
+    if node is not in the explored set
+    add node to explored set
+    expand the node, adding the resulting nodes to the frontier
+    """
+
+    frontier = [[(problem.getStartState(),"",0)]]
+    exploredSet = [problem.getStartState()]
+    #depth = 0
+
+    while frontier:
+        currentPath = frontier[-1]
+        currentLeaf = currentPath[-1]
+        
+        del frontier[-1]
+        if (problem.isGoalState(currentLeaf[0])):
+            currentPath.pop(0)
+            return [node[1] for node in currentPath]
+
+        if (currentLeaf[0] not in exploredSet):
+            exploredSet.append(currentLeaf[0])
+        for leaf in problem.getSuccessors(currentLeaf[0]):
+            if (leaf[0] not in exploredSet):
+                frontier.append(currentPath + [leaf])
+
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
+
+    frontier = [[(problem.getStartState(),"",0)]]
+    exploredSet = [problem.getStartState()]
+
+    while frontier:
+        currentPath = frontier.pop(0)
+        currentLeaf = currentPath[-1]
+
+        #print(frontier)
+        #print(currentLeaf)
+        #print(exploredSet)
+        
+        if (problem.isGoalState(currentLeaf[0])):
+            #remove start node
+            currentPath.pop(0)
+            return [node[1] for node in currentPath]
+        if (currentLeaf[0] not in exploredSet):
+            exploredSet.append(currentLeaf[0])
+        for leaf in problem.getSuccessors(currentLeaf[0]):
+            if (leaf[0] not in exploredSet):
+                exploredSet.append(leaf[0])
+                frontier.append(currentPath + [leaf])
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
+    from util import PriorityQueue
     "Search the node of least total cost first. "
-    "*** YOUR CODE HERE ***"
+    frontier = PriorityQueue()
+    frontier.push([(problem.getStartState(),"",0)],0)
+    exploredSet = [problem.getStartState()]
+    #depth = 0
+
+    while frontier:
+        currentPath = frontier.pop()
+        currentLeaf = currentPath[-1]
+
+        if (problem.isGoalState(currentLeaf[0])):
+            currentPath.pop(0)
+            return [node[1] for node in currentPath]
+        for leaf in problem.getSuccessors(currentLeaf[0]):
+            if (leaf[0] not in exploredSet):
+                exploredSet.append(leaf[0], sum(node[2] for node in currentPath + [leaf]))
+                frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]))
+            if (item for item in a if item[0] == 1)
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
