@@ -85,8 +85,7 @@ def depthFirstSearch(problem):
     """
 
     frontier = [[(problem.getStartState(),"",0)]]
-    exploredSet = [problem.getStartState()]
-    #depth = 0
+    exploredSet = []
 
     while frontier:
         currentPath = frontier[-1]
@@ -103,8 +102,7 @@ def depthFirstSearch(problem):
             if (leaf[0] not in exploredSet):
                 frontier.append(currentPath + [leaf])
 
-
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """
@@ -112,16 +110,12 @@ def breadthFirstSearch(problem):
     """
 
     frontier = [[(problem.getStartState(),"",0)]]
-    exploredSet = [problem.getStartState()]
+    exploredSet = []
 
     while frontier:
         currentPath = frontier.pop(0)
         currentLeaf = currentPath[-1]
 
-        #print(frontier)
-        #print(currentLeaf)
-        #print(exploredSet)
-        
         if (problem.isGoalState(currentLeaf[0])):
             #remove start node
             currentPath.pop(0)
@@ -133,28 +127,30 @@ def breadthFirstSearch(problem):
                 exploredSet.append(leaf[0])
                 frontier.append(currentPath + [leaf])
 
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     from util import PriorityQueue
+
     "Search the node of least total cost first. "
     frontier = PriorityQueue()
     frontier.push([(problem.getStartState(),"",0)],0)
-    exploredSet = [problem.getStartState()]
-    #depth = 0
+    exploredSet = []
 
-    while frontier:
+    while not frontier.isEmpty():
         currentPath = frontier.pop()
         currentLeaf = currentPath[-1]
 
-        if (problem.isGoalState(currentLeaf[0])):
-            currentPath.pop(0)
-            return [node[1] for node in currentPath]
-        for leaf in problem.getSuccessors(currentLeaf[0]):
-            if (leaf[0] not in exploredSet):
-                exploredSet.append(leaf[0], sum(node[2] for node in currentPath + [leaf]))
-                frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]))
-            if (item for item in a if item[0] == 1)
+        if (currentLeaf[0] not in exploredSet):
+            exploredSet.append(currentLeaf[0])
+
+            if (problem.isGoalState(currentLeaf[0])):
+                currentPath.pop(0)
+                return [node[1] for node in currentPath]
+
+            for leaf in problem.getSuccessors(currentLeaf[0]):
+                if (leaf[0] not in exploredSet):
+                    frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]))
 
     util.raiseNotDefined()
 
@@ -167,7 +163,28 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
-    "*** YOUR CODE HERE ***"
+
+    from util import PriorityQueue
+
+    frontier = PriorityQueue()
+    frontier.push([(problem.getStartState(),"",0)],0)
+    exploredSet = []
+
+    while not frontier.isEmpty():
+        currentPath = frontier.pop()
+        currentLeaf = currentPath[-1]
+
+        if (currentLeaf[0] not in exploredSet):
+            exploredSet.append(currentLeaf[0])
+
+            if (problem.isGoalState(currentLeaf[0])):
+                currentPath.pop(0)
+                return [node[1] for node in currentPath]
+
+            for leaf in problem.getSuccessors(currentLeaf[0]):
+                if (leaf[0] not in exploredSet):
+                    frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]) + heuristic(leaf[0], problem))
+
     util.raiseNotDefined()
 
 # Abbreviations
