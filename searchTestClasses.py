@@ -198,7 +198,7 @@ class GraphSearchTest(testClasses.TestCase):
             grades.addMessage('\texpanded_states:\t%s' % expanded_states)
             return True
         else:
-            grades.addMessage('FAIL: %s' % self.path)
+            grades.addMessage('FAIL: %s' % self.path) 
             grades.addMessage('\tgraph:')
             for line in self.diagram.split('\n'):
                 grades.addMessage('\t    %s' % (line,))
@@ -432,19 +432,17 @@ class QueenSearch(testClasses.TestCase):
         self.iteration = int(testDict['iteration'])
 
     def getSolInfo(self, solveEightQueens):
-        eightQueensAgent = getattr(solveEightQueens, self.agent)(False, self.iteration, True)
-        board = getattr(solveEightQueens, self.board)
-        #charBoard = [l.split(' ') for l in self.queenLayout.split('\n')]
-        squareArray = [[]]
-#        for l in charBoard:
-#            squareArray.append(list(map(int, l)))
-        #print(squareArray)
-        Board = board(squareArray)
         solutionCounter = 0
         for i in range(self.iteration):
+            eightQueensAgent = getattr(solveEightQueens, self.agent)(self.iteration, False, False)
+            board = getattr(solveEightQueens, self.board)
+            squareArray = [[]]
+            Board = board(squareArray)
+            #print(Board.toString())
+
             if eightQueensAgent.search(Board, False).getNumberOfAttacks() == 0:
                 solutionCounter += 1
-            print('Test iteration %d/%d' % (i, self.iteration), end="\r")
+            print('Test iteration %d/%d, Solved: %d' % (i+1, self.iteration, solutionCounter), end="\r")
         return solutionCounter, None
 
     def execute(self, grades, moduleDict, solutionDict):
