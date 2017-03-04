@@ -464,22 +464,34 @@ def foodHeuristic(state, problem):
     currentPosition, foodGrid = state
     walls = problem.walls
     foodList = list(foodGrid.asList())
-    
-    pathTravelled = 0
+    problem.heuristicInfo['startState'] = problem.startingGameState
 
-    while foodList:
+    minPath = -1
 
-        #manhattan distance
-        #pathSegment, newPosition = min([(abs(currentPosition[0] - foodPosition[0]) + abs(currentPosition[1] - foodPosition[1]), foodPosition) for foodPosition in foodList])
-        #euclidean distance
-        pathSegment, newPosition = min([(( (currentPosition[0] - foodPosition[0]) ** 2 + (currentPosition[1] - foodPosition[1]) ** 2 ) ** 0.5, foodPosition) for foodPosition in foodList])
+    for startFood in foodList:
+        tempFoodList = list(foodList)
+        pathTravelled = 0
+        currentFood = startFood
 
-        currentPosition = newPosition
-        pathTravelled += pathSegment
-        foodList.remove(currentPosition)
+        while tempFoodList:
 
-    return pathTravelled 
+            #manhattan distance
+            #pathSegment, nextFood = min([(abs(currentFood[0] - foodPosition[0]) + abs(currentFood[1] - foodPosition[1]), foodPosition) for foodPosition in tempFoodList])
+            #euclidean distance
+            #pathSegment, nextFood = min([(( (currentFood[0] - foodPosition[0]) ** 2 + (currentFood[1] - foodPosition[1]) ** 2 ) ** 0.5, foodPosition) for foodPosition in tempFoodList])
+            #mazeDistance
+            pathSegment, nextFood = min([( mazeDistance(currentFood , foodPosition, problem.heuristicInfo['startState']), foodPosition) for foodPosition in tempFoodList])
 
+            currentFood = nextFood
+            pathTravelled += pathSegment
+            tempFoodList.remove(currentFood)
+
+        if 0 > minPath:
+            minPath = pathTravelled + mazeDistance(currentPosition , startFood, problem.heuristicInfo['startState'])
+        else:
+            minPath = min(minPath, pathTravelled + mazeDistance(currentPosition , startFood, problem.heuristicInfo['startState']))
+
+    return max(minPath, 0)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -505,6 +517,7 @@ class ClosestDotSearchAgent(SearchAgent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
+
 
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
