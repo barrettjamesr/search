@@ -476,11 +476,11 @@ def foodHeuristic(state, problem):
         while tempFoodList:
 
             #manhattan distance
-            #pathSegment, nextFood = min([(abs(currentFood[0] - foodPosition[0]) + abs(currentFood[1] - foodPosition[1]), foodPosition) for foodPosition in tempFoodList])
+            pathSegment, nextFood = min([(abs(currentFood[0] - foodPosition[0]) + abs(currentFood[1] - foodPosition[1]), foodPosition) for foodPosition in tempFoodList])
             #euclidean distance
             #pathSegment, nextFood = min([(( (currentFood[0] - foodPosition[0]) ** 2 + (currentFood[1] - foodPosition[1]) ** 2 ) ** 0.5, foodPosition) for foodPosition in tempFoodList])
             #mazeDistance
-            pathSegment, nextFood = min([( mazeDistance(currentFood , foodPosition, problem.heuristicInfo['startState']), foodPosition) for foodPosition in tempFoodList])
+            #pathSegment, nextFood = min([( mazeDistance(currentFood , foodPosition, problem.heuristicInfo['startState']), foodPosition) for foodPosition in tempFoodList])
 
             currentFood = nextFood
             pathTravelled += pathSegment

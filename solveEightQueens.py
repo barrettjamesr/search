@@ -104,6 +104,31 @@ class Board:
             return (betterBoard, minNumOfAttack, newRow, newCol)
         The datatype of minNumOfAttack, newRow and newCol should be int
         """
+        
+        minNumOfAttack = self.getNumberOfAttacks()
+        newBoard = self
+        newCol, newRow = 0, 0
+
+        for curCol in range(len(newBoard.squareArray)):
+            queenRow = [row[curCol] for row in newBoard.squareArray].index(1)
+            for curRow in range(len(newBoard.squareArray)):
+                if (curCol != curRow) and (curCol != len(newBoard.squareArray) - 1 - curRow) and (len(newBoard.squareArray) - 1 - curCol != curRow):
+                    #make previous queen empty
+                    newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
+                    newBoard.squareArray[curRow][curCol] = 1
+
+                    if newBoard.getNumberOfAttacks() < minNumOfAttack:
+                        newCol = curCol
+                        newRow = curRow
+                        minNumOfAttack = newBoard.getNumberOfAttacks()
+
+            newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
+            newBoard.squareArray[queenRow][curCol] = 1
+
+        newBoard.squareArray[[row[newCol] for row in newBoard.squareArray].index(1)][newCol] = 0
+        newBoard.squareArray[newRow][newCol] = 1
+
+        return (newBoard, minNumOfAttack, newRow, newCol)
         util.raiseNotDefined()
 
     def getNumberOfAttacks(self):
@@ -112,6 +137,49 @@ class Board:
         This function should return the number of attacks of the current board
         The datatype of the return value should be int
         """
+        numAttacks = 0
+
+        rowTotals = [ sum(row) for row in self.squareArray ]
+        colTotals = [ sum(col) for col in zip(*self.squareArray) ]
+
+        for total in rowTotals:
+            numAttacks += (total*(total-1))/2
+        for total in colTotals:
+            numAttacks += (total*(total-1))/2
+
+        #each square in the board has potentially diagonals, leftdown, leftup, rightdown, right up
+        #this loop uses the top row and bottom row as starting points to calculate the sum of each diagonal
+        #don't need to check the final col because that would duplicate
+        for col in range(len(self.squareArray)-1) :
+            leftDown = 0
+            offset = 0
+            while col - offset >= 0:
+                leftDown += self.squareArray[offset][col-offset]
+                offset+=1
+            numAttacks += (leftDown*(leftDown-1))/2
+
+            leftUp = 0
+            offset = 0
+            while col - offset >= 0:
+                leftUp += self.squareArray[len(self.squareArray)-1-offset][col-offset]
+                offset+=1
+            numAttacks += (leftUp*(leftUp-1))/2
+
+            rightDown = 0
+            offset = 0
+            while col + offset  < len(self.squareArray):
+                rightDown += self.squareArray[offset][col+offset]
+                offset+=1
+            numAttacks += (rightDown*(rightDown-1))/2
+
+            rightUp = 0
+            offset = 0
+            while col + offset < len(self.squareArray):
+                rightUp += self.squareArray[len(self.squareArray)-1-offset][col+offset]
+                offset+=1
+            numAttacks += (rightUp*(rightUp-1))/2
+
+        return int(numAttacks)
         util.raiseNotDefined()
 
 if __name__ == "__main__":
