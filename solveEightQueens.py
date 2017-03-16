@@ -34,7 +34,7 @@ class SolveEightQueens:
         Hint: Modify the stop criterion in this function
         """
         newBoard = board
-        i = 0 
+        i = 0
         while True:
             if verbose:
                 print("iteration %d" % i)
@@ -44,7 +44,7 @@ class SolveEightQueens:
             currentNumberOfAttacks = newBoard.getNumberOfAttacks()
             (newBoard, newNumberOfAttacks, newRow, newCol) = newBoard.getBetterBoard()
             i += 1
-            if currentNumberOfAttacks <= newNumberOfAttacks:
+            if 100 <= i or 0 == newNumberOfAttacks:
                 break
         return newBoard
 
@@ -104,20 +104,25 @@ class Board:
             return (betterBoard, minNumOfAttack, newRow, newCol)
         The datatype of minNumOfAttack, newRow and newCol should be int
         """
-        
+
         minNumOfAttack = self.getNumberOfAttacks()
         newBoard = self
-        newCol, newRow = 0, 0
+        newCol, newRow = -1, -1
 
-        for curCol in range(len(newBoard.squareArray)):
+        randomColList = list(range(len(newBoard.squareArray)))
+
+        for curCol in random.sample(randomColList, len(randomColList)):
             queenRow = [row[curCol] for row in newBoard.squareArray].index(1)
             for curRow in range(len(newBoard.squareArray)):
-                if (curCol != curRow) and (curCol != len(newBoard.squareArray) - 1 - curRow) and (len(newBoard.squareArray) - 1 - curCol != curRow):
+                #if (curCol != curRow) and (curCol != len(newBoard.squareArray) - 1 - curRow) and (len(newBoard.squareArray) - 1 - curCol != curRow) and curRow != queenRow:
+                if curRow != queenRow:
                     #make previous queen empty
                     newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
                     newBoard.squareArray[curRow][curCol] = 1
 
-                    if newBoard.getNumberOfAttacks() < minNumOfAttack:
+                    #print((newBoard.getNumberOfAttacks(), minNumOfAttack))
+
+                    if newBoard.getNumberOfAttacks() <= minNumOfAttack:
                         newCol = curCol
                         newRow = curRow
                         minNumOfAttack = newBoard.getNumberOfAttacks()
@@ -125,10 +130,11 @@ class Board:
             newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
             newBoard.squareArray[queenRow][curCol] = 1
 
-        newBoard.squareArray[[row[newCol] for row in newBoard.squareArray].index(1)][newCol] = 0
-        newBoard.squareArray[newRow][newCol] = 1
+        if -1 != newCol and -1 != newRow:
+            newBoard.squareArray[[row[newCol] for row in newBoard.squareArray].index(1)][newCol] = 0
+            newBoard.squareArray[newRow][newCol] = 1
 
-        return (newBoard, minNumOfAttack, newRow, newCol)
+        return (newBoard, int(minNumOfAttack), int(newRow), int(newCol))
         util.raiseNotDefined()
 
     def getNumberOfAttacks(self):
