@@ -84,6 +84,7 @@ def depthFirstSearch(problem):
     expand the node, adding the resulting nodes to the frontier
     """
 
+    #change to use set opbjects provided!
     frontier = [[(problem.getStartState(),"",0)]]
     exploredSet = []
 
