@@ -84,21 +84,28 @@ def depthFirstSearch(problem):
     expand the node, adding the resulting nodes to the frontier
     """
 
-    #change to use set opbjects provided!
+    #frontier is list of paths
+    #each path is a list of states (leaf)
+    #each leaf is a tuple of the current state (location), the action, and the cost
     frontier = [[(problem.getStartState(),"",0)]]
     exploredSet = []
 
     while frontier:
+        #DFS utilizes LIFO to process frontier
         currentPath = frontier[-1]
         currentLeaf = currentPath[-1]
-        
+        #remove from frontier
         del frontier[-1]
+
+        #goal check
         if (problem.isGoalState(currentLeaf[0])):
+            #remove start node (no movement to start state)
             currentPath.pop(0)
             return [node[1] for node in currentPath]
 
         if (currentLeaf[0] not in exploredSet):
             exploredSet.append(currentLeaf[0])
+        #expand leaf
         for leaf in problem.getSuccessors(currentLeaf[0]):
             if (leaf[0] not in exploredSet):
                 frontier.append(currentPath + [leaf])
@@ -110,35 +117,46 @@ def breadthFirstSearch(problem):
     Search the shallowest nodes in the search tree first.
     """
 
+    #frontier is list of paths
+    #each path is a list of states (leaf)
+    #each leaf is a tuple of the current state (location), the action, and the cost
     frontier = [[(problem.getStartState(),"",0)]]
     exploredSet = []
 
     while frontier:
+        #BFS utilizes FIFO to process frontier
         currentPath = frontier.pop(0)
         currentLeaf = currentPath[-1]
 
+        #goal check
         if (problem.isGoalState(currentLeaf[0])):
-            #remove start node
+            #remove start node (no movement to start state)
             currentPath.pop(0)
             return [node[1] for node in currentPath]
+
         if (currentLeaf[0] not in exploredSet):
             exploredSet.append(currentLeaf[0])
-        for leaf in problem.getSuccessors(currentLeaf[0]):
-            if (leaf[0] not in exploredSet):
-                exploredSet.append(leaf[0])
-                frontier.append(currentPath + [leaf])
+            #expand leaf
+            for leaf in problem.getSuccessors(currentLeaf[0]):
+                if (leaf[0] not in exploredSet):
+                    frontier.append(currentPath + [leaf])
 
-    #util.raiseNotDefined()
+
+    util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     from util import PriorityQueue
 
+    #frontier is list of paths
+    #each path is a list of states (leaf)
+    #each leaf is a tuple of the current state (location), the action, and the cost
     "Search the node of least total cost first. "
     frontier = PriorityQueue()
     frontier.push([(problem.getStartState(),"",0)],0)
     exploredSet = []
 
     while not frontier.isEmpty():
+        #PriorityQueue automatically sorts lowest cost to front
         currentPath = frontier.pop()
         currentLeaf = currentPath[-1]
 
@@ -146,14 +164,16 @@ def uniformCostSearch(problem):
             exploredSet.append(currentLeaf[0])
 
             if (problem.isGoalState(currentLeaf[0])):
+                #remove start node (no movement to start state)
                 currentPath.pop(0)
                 return [node[1] for node in currentPath]
 
+            #expand leaf
             for leaf in problem.getSuccessors(currentLeaf[0]):
                 if (leaf[0] not in exploredSet):
                     frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]))
 
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
@@ -167,6 +187,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
     from util import PriorityQueue
 
+    #frontier is list of paths
+    #each path is a list of states (leaf)
+    #each leaf is a tuple of the current state (location), the action, and the cost
     frontier = PriorityQueue()
     frontier.push([(problem.getStartState(),"",0)],0)
     exploredSet = []
@@ -179,9 +202,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             exploredSet.append(currentLeaf[0])
 
             if (problem.isGoalState(currentLeaf[0])):
+                #remove start node (no movement to start state)
                 currentPath.pop(0)
                 return [node[1] for node in currentPath]
 
+            #expand leaf
             for leaf in problem.getSuccessors(currentLeaf[0]):
                 if (leaf[0] not in exploredSet):
                     frontier.push(currentPath + [leaf], sum(node[2] for node in currentPath + [leaf]) + heuristic(leaf[0], problem))

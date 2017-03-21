@@ -44,6 +44,7 @@ class SolveEightQueens:
             currentNumberOfAttacks = newBoard.getNumberOfAttacks()
             (newBoard, newNumberOfAttacks, newRow, newCol) = newBoard.getBetterBoard()
             i += 1
+            # Loop until solved or for 100 interations
             if 100 <= i or 0 == newNumberOfAttacks:
                 break
         return newBoard
@@ -111,22 +112,24 @@ class Board:
 
         randomColList = list(range(len(newBoard.squareArray)))
 
+        # randomised list of columns
         for curCol in random.sample(randomColList, len(randomColList)):
             queenRow = [row[curCol] for row in newBoard.squareArray].index(1)
-            for curRow in range(len(newBoard.squareArray)):
+            #randomly check each row 
+            randomRowList = list(range(len(newBoard.squareArray)))
+            for curRow in random.sample(randomRowList, len(randomRowList)):
+                #possible additional constraint
                 #if (curCol != curRow) and (curCol != len(newBoard.squareArray) - 1 - curRow) and (len(newBoard.squareArray) - 1 - curCol != curRow) and curRow != queenRow:
                 if curRow != queenRow:
                     #make previous queen empty
                     newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
                     newBoard.squareArray[curRow][curCol] = 1
 
-                    #print((newBoard.getNumberOfAttacks(), minNumOfAttack))
-
                     if newBoard.getNumberOfAttacks() <= minNumOfAttack:
                         newCol = curCol
                         newRow = curRow
                         minNumOfAttack = newBoard.getNumberOfAttacks()
-
+            #reset board
             newBoard.squareArray[[row[curCol] for row in newBoard.squareArray].index(1)][curCol] = 0
             newBoard.squareArray[queenRow][curCol] = 1
 

@@ -268,7 +268,7 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-
+        self.costFn = lambda x: 1
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
@@ -279,14 +279,11 @@ class CornersProblem(search.SearchProblem):
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
 
+        # state includes the current position, and which corners have been visited
         currentPosition, cornersVisited = state
 
-        if currentPosition in self.corners:
-            if currentPosition not in cornersVisited:
-                cornersVisited.append(currentPosition)
-            return 4 == len(cornersVisited)
-        else:
-            return False
+        # when all four corners have been visited, you have reached the goal!
+        return 4 == len(cornersVisited)
 
         util.raiseNotDefined()
 
@@ -302,8 +299,6 @@ class CornersProblem(search.SearchProblem):
          cost of expanding to that successor
         """
 
-        x,y = state[0]
-        cornersVisited = state[1]
         successors = []
 
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -313,17 +308,20 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
+            currentPosition, cornersVisited = state
+            x,y = currentPosition
 
             dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
+            nextX, nextY = int(x + dx), int(y + dy)
+            if not self.walls[nextX][nextY]:
                 #create a clone of the corners visited list
                 nextCornersVisited = cornersVisited[:]
-                nextLeaf = (nextx, nexty)
+                nextLeaf = (nextX, nextY)
                 if nextLeaf in self.corners:
                     if nextLeaf not in nextCornersVisited:
                         nextCornersVisited.append(nextLeaf)
-                successors.append(((nextLeaf, nextCornersVisited), action, 1))
+                cost = self.costFn(nextLeaf)
+                successors.append(((nextLeaf, nextCornersVisited), action, cost))
 
         self._expanded += 1
         return successors
@@ -357,17 +355,18 @@ def cornersHeuristic(state, problem):
     corners = list(problem.corners) # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    currentPosition = state[0]
-    cornersVisited = state[1]
+    currentPosition, cornersVisited = state
 
-    cornersNotVisited = [corner for corner in corners+cornersVisited if (corner not in cornersVisited) or (corner not in corners)]
+    #list of corners not visited 
+    cornersNotVisited = [corner for corner in corners if (corner not in cornersVisited)]
 
+    #go to the closest corner of those not visited using manhattan distance to estimate cost
     pathTravelled = 0
     while len(cornersNotVisited) >0:
         #manhattan distance
-        pathSegment, newCorner = min([(abs(currentPosition[0] - corner[0]) + abs(currentPosition[1] - corner[1]), corner) for corner in cornersNotVisited])
-        #euclidean distance
-        #pathSegment, newCorner = min([(( (currentPosition[0] - corner[0]) ** 2 + (currentPosition[1] - corner[1]) ** 2 ) ** 0.5, corner) for corner in cornersNotVisited])
+        #pathSegment, newCorner = min([(abs(currentPosition[0] - corner[0]) + abs(currentPosition[1] - corner[1]), corner) for corner in cornersNotVisited])
+        #euclidean distance - not used, empirically not as good as manhattan
+        pathSegment, newCorner = min([(( (currentPosition[0] - corner[0]) ** 2 + (currentPosition[1] - corner[1]) ** 2 ) ** 0.5, corner) for corner in cornersNotVisited])
         currentPosition = newCorner
         pathTravelled += pathSegment
         cornersNotVisited.remove(currentPosition)
@@ -468,29 +467,35 @@ def foodHeuristic(state, problem):
 
     minPath = -1
 
+    #Heuristic finds the shortest path to eat all the dots, depending on which dot you start at.
+    #Manhattan distance and Euclidean distance are both faster than using actual maze distance between the dots. But time cost was not a parameter of this problem specification, only expanding the least number of nodes.
+    #First try each dot as the startFood
     for startFood in foodList:
-        tempFoodList = list(foodList)
+        #copy of foodList
         pathTravelled = 0
         currentFood = startFood
+        tempFoodList = list(foodList)
+        tempFoodList.remove(currentFood)
 
         while tempFoodList:
-
             #manhattan distance
-            pathSegment, nextFood = min([(abs(currentFood[0] - foodPosition[0]) + abs(currentFood[1] - foodPosition[1]), foodPosition) for foodPosition in tempFoodList])
+            #pathSegment, nextFood = min([(abs(currentFood[0] - foodPosition[0]) + abs(currentFood[1] - foodPosition[1]), foodPosition) for foodPosition in tempFoodList])
             #euclidean distance
             #pathSegment, nextFood = min([(( (currentFood[0] - foodPosition[0]) ** 2 + (currentFood[1] - foodPosition[1]) ** 2 ) ** 0.5, foodPosition) for foodPosition in tempFoodList])
             #mazeDistance
-            #pathSegment, nextFood = min([( mazeDistance(currentFood , foodPosition, problem.heuristicInfo['startState']), foodPosition) for foodPosition in tempFoodList])
+            pathSegment, nextFood = min([( mazeDistance(currentFood , foodPosition, problem.heuristicInfo['startState']), foodPosition) for foodPosition in tempFoodList])
 
             currentFood = nextFood
-            pathTravelled += pathSegment
             tempFoodList.remove(currentFood)
+            pathTravelled += pathSegment
 
+        # for first attempt, set minPath, else compare previous minimum with current pathTravelled + distance to start dot
         if 0 > minPath:
             minPath = pathTravelled + mazeDistance(currentPosition , startFood, problem.heuristicInfo['startState'])
         else:
             minPath = min(minPath, pathTravelled + mazeDistance(currentPosition , startFood, problem.heuristicInfo['startState']))
 
+    # don't return negative, return zero
     return max(minPath, 0)
 
 class ClosestDotSearchAgent(SearchAgent):
